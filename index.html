@@ -394,7 +394,6 @@
     margin-top: -0.4rem;
   }
 
-  /* ===== MOBILE THREE-DOT MENU (hidden on desktop) ===== */
   .menu-btn { display: none; }
 
   .menu-popup {
@@ -422,7 +421,12 @@
     padding: 6px 10px;
   }
 
-  /* ===== MOBILE ===== */
+  @media (max-height: 750px) {
+    .arabic-title { font-size: clamp(1.4rem, 3.5vw, 2.2rem); }
+    .video-frame { width: min(58vw, 780px); }
+    .container { gap: 0.9rem; }
+  }
+
   @media (max-width: 700px) {
     html, body {
       overflow-y: auto;
@@ -432,10 +436,31 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    .video-frame { width: 92vw; }
+    .container {
+      gap: 0.6rem;
+      padding: 1.2rem 0.6rem 0.6rem;
+      justify-content: flex-start;
+    }
+
+    .arabic-title { font-size: 1.6rem; }
+
+    .english-title {
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      margin-top: -0.3rem;
+    }
+
+    .video-frame {
+      width: 94vw;
+      aspect-ratio: 4 / 5;
+      max-height: 72vh;
+    }
+
+    video { object-fit: contain; }
+
     .overlay-btn .circle { width: 64px; height: 64px; }
     .overlay-btn svg { width: 24px; height: 24px; }
-    .container { gap: 1rem; }
+
     .controls { padding: 0.7rem 0.8rem 0.6rem; gap: 0.4rem; }
     .control-row { gap: 0.5rem; }
     .left-group, .right-group { gap: 0.6rem; }
@@ -443,20 +468,21 @@
     .volume-slider { width: 50px; }
     .time-readout { font-size: 0.7rem; }
     .speed-pill { font-size: 0.65rem; padding: 2px 6px; }
+
     .duration-badge {
       font-size: 0.75rem;
       padding: 3px 9px;
       top: 10px;
       right: 10px;
     }
+
     .speed-group { display: none !important; }
     .menu-btn { display: flex !important; }
-  }
 
-  @media (max-height: 750px) {
-    .arabic-title { font-size: clamp(1.4rem, 3.5vw, 2.2rem); }
-    .video-frame { width: min(58vw, 780px); }
-    .container { gap: 0.9rem; }
+    .reciter {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+    }
   }
 
   .video-frame:fullscreen {
@@ -464,6 +490,8 @@
     height: 100vh;
     border-radius: 0;
     border: none;
+    aspect-ratio: auto;
+    max-height: none;
   }
 
   .video-frame:fullscreen video { object-fit: contain; }
@@ -684,7 +712,7 @@
     seek(e.touches[0]);
     document.addEventListener('touchmove', onTouchDrag);
     document.addEventListener('touchend', onDragEnd);
-  });
+  }, { passive: true });
 
   function onDrag(e) { seek(e); }
   function onTouchDrag(e) { seek(e.touches[0]); }
