@@ -177,7 +177,6 @@
     margin-left: 4px;
   }
 
-  /* ===== CONTROL PANEL (hover) ===== */
   .controls {
     position: absolute;
     left: 0;
@@ -215,7 +214,6 @@
     transform: translateY(0);
   }
 
-  /* ===== PROGRESS BAR (YouTube style) ===== */
   .progress {
     position: relative;
     width: 100%;
@@ -264,7 +262,6 @@
     transform: translate(-50%, -50%) scale(1);
   }
 
-  /* ===== CONTROL ROW ===== */
   .control-row {
     display: flex;
     align-items: center;
@@ -397,7 +394,44 @@
     margin-top: -0.4rem;
   }
 
+  /* ===== MOBILE THREE-DOT MENU (hidden on desktop) ===== */
+  .menu-btn { display: none; }
+
+  .menu-popup {
+    position: absolute;
+    bottom: 55px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 20;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+    min-width: 80px;
+  }
+
+  .menu-popup.show { display: flex; }
+
+  .menu-popup .speed-pill {
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+
+  /* ===== MOBILE ===== */
   @media (max-width: 700px) {
+    html, body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: static;
+      overscroll-behavior-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
     .video-frame { width: 92vw; }
     .overlay-btn .circle { width: 64px; height: 64px; }
     .overlay-btn svg { width: 24px; height: 24px; }
@@ -415,6 +449,8 @@
       top: 10px;
       right: 10px;
     }
+    .speed-group { display: none !important; }
+    .menu-btn { display: flex !important; }
   }
 
   @media (max-height: 750px) {
@@ -530,6 +566,19 @@
               </svg>
             </button>
 
+            <button class="ctrl-btn menu-btn" id="menuBtn" title="More">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
+            </button>
+
+            <div class="menu-popup" id="menuPopup">
+              <button class="speed-pill" data-speed="0.75">0.75×</button>
+              <button class="speed-pill active" data-speed="1">1×</button>
+              <button class="speed-pill" data-speed="1.25">1.25×</button>
+              <button class="speed-pill" data-speed="1.5">1.5×</button>
+            </div>
+
           </div>
 
         </div>
@@ -563,6 +612,9 @@
   const playPauseBtn   = document.getElementById('playPauseBtn');
   const playPauseIcon  = document.getElementById('playPauseIcon');
   const replayBtn      = document.getElementById('replayBtn');
+
+  const menuBtn        = document.getElementById('menuBtn');
+  const menuPopup      = document.getElementById('menuPopup');
 
   const PLAY_PATH  = "M8 5v14l11-7z";
   const PAUSE_PATH = "M6 5h4v14H6zm8 0h4v14h-4z";
@@ -704,7 +756,8 @@
     pill.addEventListener('click', () => {
       video.playbackRate = parseFloat(pill.dataset.speed);
       speedPills.forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
+      document.querySelectorAll(`.speed-pill[data-speed="${pill.dataset.speed}"]`)
+        .forEach(p => p.classList.add('active'));
     });
   });
 
@@ -739,12 +792,38 @@
   });
 
   fsBtn.addEventListener('click', () => {
-    if (!document.fullscreenElement) frame.requestFullscreen();
-    else document.exitFullscreen();
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      } else if (video.requestFullscreen) {
+        video.requestFullscreen();
+      } else if (frame.requestFullscreen) {
+        frame.requestFullscreen();
+      }
+    } else {
+      if (!document.fullscreenElement) {
+        frame.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
   });
 
   document.addEventListener('fullscreenchange', () => {
     fsBtn.classList.toggle('active', !!document.fullscreenElement);
+  });
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menuPopup.classList.toggle('show');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menuPopup.contains(e.target) && !menuBtn.contains(e.target)) {
+      menuPopup.classList.remove('show');
+    }
   });
 
   document.addEventListener('keydown', async (e) => {
