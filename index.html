@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>زيارة آل ياسين</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+  }
+
+  body {
+    background-image: url('background.jpg');
+    background-size: cover;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: #000;
+    font-family: 'Cormorant Garamond', serif;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 1.8s ease-in;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,0.15) 0%,
+      rgba(0,0,0,0.05) 50%,
+      rgba(0,0,0,0.4) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .container {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 1.5rem;
+    max-width: 1100px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+  }
+
+  .arabic-title {
+    font-family: 'Amiri', serif;
+    font-size: clamp(1.8rem, 4.5vw, 3.2rem);
+    color: #ffffff;
+    font-weight: 700;
+    text-shadow:
+      0 0 18px rgba(255, 255, 255, 0.55),
+      0 0 36px rgba(255, 255, 255, 0.25),
+      0 2px 6px rgba(0,0,0,0.7);
+    line-height: 1.2;
+  }
+
+  .english-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.75rem, 1.2vw, 1rem);
+    color: #ffffff;
+    font-weight: 300;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+    margin-top: -0.6rem;
+  }
+
+  .video-frame {
+    position: relative;
+    width: min(65vw, 900px);
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+    background: #000;
+    transition: border-color 0.4s ease;
+  }
+
+  .video-frame:hover { border-color: rgba(255, 255, 255, 0.35); }
+
+  video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    background: #000;
+  }
+
+  .duration-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 4px 12px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
+    font-variant-numeric: tabular-nums;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 6;
+    pointer-events: none;
+  }
+
+  .duration-badge.visible { opacity: 1; }
+
+  .overlay-btn {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    z-index: 3;
+  }
+
+  .overlay-btn.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .overlay-btn .circle {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    background: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.35);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .overlay-btn:hover .circle {
+    transform: scale(1.08);
+    box-shadow: 0 0 40px rgba(255, 255, 255, 0.7);
+  }
+
+  .overlay-btn svg {
+    width: 32px;
+    height: 32px;
+    fill: #ffffff;
+    margin-left: 4px;
+  }
+
+  .controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    padding: 0.9rem 1.4rem;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.85) 0%,
+      rgba(0,0,0,0.5) 60%,
+      rgba(0,0,0,0) 100%
+    );
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease,
+      visibility 0.35s ease;
+    z-index: 4;
+    flex-wrap: wrap;
+  }
+
+  .video-frame:hover .controls {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .controls:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .ctrl-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 0.25s ease;
+    border-radius: 50%;
+  }
+
+  .ctrl-btn:hover {
+    color: #ffffff;
+    transform: scale(1.15);
+    text-shadow: 0 0 12px rgba(255,255,255,0.9);
+  }
+
+  .ctrl-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+
+  .ctrl-btn.active {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.9);
+  }
+
+  .speed-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .speed-pill {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.75);
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .speed-pill:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #ffffff;
+  }
+
+  .speed-pill.active {
+    background: rgba(255, 255, 255, 0.95);
+    color: #000;
+    border-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
+  }
+
+  .time-readout {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.8);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  }
+
+  .time-readout .sep {
+    opacity: 0.4;
+    margin: 0 3px;
+  }
+
+  .volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 70px;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 10px rgba(255,255,255,0.7);
+    cursor: pointer;
+  }
+
+  .volume-slider::-moz-range-thumb {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: none;
+    box-shadow: 0 0 10px rgba(255,255,255,0.7);
+    cursor: pointer;
+  }
+
+  .divider {
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .reciter {
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 300;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+    margin-top: -0.4rem;
+  }
+
+  @media (max-width: 700px) {
+    .video-frame { width: 92vw; }
+    .overlay-btn .circle { width: 64px; height: 64px; }
+    .overlay-btn svg { width: 24px; height: 24px; }
+    .container { gap: 1rem; }
+    .controls { gap: 0.7rem; padding: 0.7rem 0.9rem; }
+    .volume-slider { width: 50px; }
+    .duration-badge {
+      font-size: 0.75rem;
+      padding: 3px 9px;
+      top: 10px;
+      right: 10px;
+    }
+  }
+
+  @media (max-height: 750px) {
+    .arabic-title { font-size: clamp(1.4rem, 3.5vw, 2.2rem); }
+    .video-frame { width: min(58vw, 780px); }
+    .container { gap: 0.9rem; }
+  }
+
+  .video-frame:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .video-frame:fullscreen video { object-fit: contain; }
+</style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1 class="arabic-title">زيارة آل ياسين</h1>
+
+    <p class="english-title">Ziyarat-e-Ale Yasin</p>
+
+    <div class="video-frame" id="frame">
+
+      <video
+        id="video"
+        src="ziyarat.mp4"
+        preload="auto"
+        playsinline
+      ></video>
+
+      <div class="duration-badge" id="durationBadge">--:--</div>
+
+      <div class="overlay-btn" id="overlayBtn">
+        <div class="circle">
+          <svg viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="controls" id="controls">
+
+        <div class="speed-group" id="speedGroup">
+          <button class="speed-pill" data-speed="0.75">0.75×</button>
+          <button class="speed-pill active" data-speed="1">1×</button>
+          <button class="speed-pill" data-speed="1.25">1.25×</button>
+          <button class="speed-pill" data-speed="1.5">1.5×</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="time-readout" id="timeReadout">
+          <span id="currentTime">0:00</span>
+          <span class="sep">/</span>
+          <span id="totalTime">--:--</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <button class="ctrl-btn" id="muteBtn" title="Mute (M)">
+          <svg id="volIcon" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+        </button>
+
+        <input
+          type="range"
+          class="volume-slider"
+          id="volumeSlider"
+          min="0"
+          max="1"
+          step="0.01"
+          value="1"
+        >
+
+        <div class="divider"></div>
+
+        <button class="ctrl-btn" id="loopBtn" title="Loop (L)">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+          </svg>
+        </button>
+
+        <div class="divider"></div>
+
+        <button class="ctrl-btn" id="fsBtn" title="Fullscreen (F)">
+          <svg id="fsIcon" viewBox="0 0 24 24">
+            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+
+    <p class="reciter">Ali Fani</p>
+
+  </div>
+
+<script>
+  const video         = document.getElementById('video');
+  const overlayBtn    = document.getElementById('overlayBtn');
+  const frame         = document.getElementById('frame');
+  const durationBadge = document.getElementById('durationBadge');
+  const currentTimeEl = document.getElementById('currentTime');
+  const totalTimeEl   = document.getElementById('totalTime');
+  const speedPills    = document.querySelectorAll('.speed-pill');
+  const muteBtn       = document.getElementById('muteBtn');
+  const volIcon       = document.getElementById('volIcon');
+  const volumeSlider  = document.getElementById('volumeSlider');
+  const loopBtn       = document.getElementById('loopBtn');
+  const fsBtn         = document.getElementById('fsBtn');
+
+  const VOL_ON =
+    "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
+
+  const VOL_OFF =
+    "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z";
+
+  function formatTime(seconds) {
+    if (!isFinite(seconds) || isNaN(seconds)) {
+      return '--:--';
+    }
+
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+
+    if (h > 0) {
+      return h + ':' +
+        String(m).padStart(2, '0') + ':' +
+        String(s).padStart(2, '0');
+    }
+
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function updateDuration() {
+    if (video.duration && isFinite(video.duration)) {
+      const formatted = formatTime(video.duration);
+      durationBadge.textContent = formatted;
+      durationBadge.classList.add('visible');
+      totalTimeEl.textContent = formatted;
+    }
+  }
+
+  video.addEventListener('loadedmetadata', updateDuration);
+  video.addEventListener('durationchange', updateDuration);
+
+  if (video.readyState >= 1) {
+    updateDuration();
+  }
+
+  video.addEventListener('timeupdate', () => {
+    currentTimeEl.textContent = formatTime(video.currentTime);
+  });
+
+  overlayBtn.addEventListener('click', async () => {
+    overlayBtn.classList.add('hidden');
+    try {
+      await video.play();
+    } catch (err) {
+      console.warn('Play failed:', err);
+      overlayBtn.classList.remove('hidden');
+    }
+  });
+
+  video.addEventListener('playing', () => {
+    overlayBtn.classList.add('hidden');
+  });
+
+  video.addEventListener('pause', () => {
+    overlayBtn.classList.remove('hidden');
+  });
+
+  video.addEventListener('ended', () => {
+    overlayBtn.classList.remove('hidden');
+  });
+
+  video.addEventListener('error', () => {
+    overlayBtn.classList.remove('hidden');
+    console.error('Video error:', video.error);
+  });
+
+  video.addEventListener('click', async () => {
+    if (video.paused) {
+      try {
+        await video.play();
+      } catch (err) {
+        console.warn('Play failed:', err);
+      }
+    } else {
+      video.pause();
+    }
+  });
+
+  speedPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      video.playbackRate = parseFloat(pill.dataset.speed);
+      speedPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  volumeSlider.addEventListener('input', () => {
+    video.volume = parseFloat(volumeSlider.value);
+    video.muted = video.volume === 0;
+    updateVolIcon();
+  });
+
+  muteBtn.addEventListener('click', () => {
+    video.muted = !video.muted;
+    if (!video.muted && video.volume === 0) {
+      video.volume = 1;
+      volumeSlider.value = 1;
+    }
+    updateVolIcon();
+  });
+
+  function updateVolIcon() {
+    if (video.muted || video.volume === 0) {
+      volIcon.querySelector('path').setAttribute('d', VOL_OFF);
+      muteBtn.classList.add('active');
+    } else {
+      volIcon.querySelector('path').setAttribute('d', VOL_ON);
+      muteBtn.classList.remove('active');
+    }
+  }
+
+  loopBtn.addEventListener('click', () => {
+    video.loop = !video.loop;
+    loopBtn.classList.toggle('active', video.loop);
+  });
+
+  fsBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      frame.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    fsBtn.classList.toggle('active', !!document.fullscreenElement);
+  });
+
+  document.addEventListener('keydown', async (e) => {
+    if (
+      e.target === volumeSlider &&
+      (e.key === 'ArrowLeft' || e.key === 'ArrowRight')
+    ) {
+      return;
+    }
+
+    switch (e.code) {
+      case 'Space':
+        e.preventDefault();
+        if (video.paused) {
+          try {
+            await video.play();
+          } catch (err) {
+            console.warn('Play failed:', err);
+          }
+        } else {
+          video.pause();
+        }
+        break;
+
+      case 'ArrowRight':
+        e.preventDefault();
+        video.currentTime = Math.min(
+          video.duration || 0,
+          video.currentTime + 5
+        );
+        break;
+
+      case 'ArrowLeft':
+        e.preventDefault();
+        video.currentTime = Math.max(0, video.currentTime - 5);
+        break;
+
+      case 'ArrowUp':
+        e.preventDefault();
+        video.volume = Math.min(1, video.volume + 0.1);
+        volumeSlider.value = video.volume;
+        video.muted = false;
+        updateVolIcon();
+        break;
+
+      case 'ArrowDown':
+        e.preventDefault();
+        video.volume = Math.max(0, video.volume - 0.1);
+        volumeSlider.value = video.volume;
+        video.muted = video.volume === 0;
+        updateVolIcon();
+        break;
+
+      case 'KeyF':
+        e.preventDefault();
+        fsBtn.click();
+        break;
+
+      case 'KeyM':
+        e.preventDefault();
+        muteBtn.click();
+        break;
+
+      case 'KeyL':
+        e.preventDefault();
+        loopBtn.click();
+        break;
+    }
+  });
+</script>
+
+</body>
+</html>
