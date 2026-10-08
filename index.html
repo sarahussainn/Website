@@ -177,20 +177,20 @@
     margin-left: 4px;
   }
 
+  /* ===== CONTROL PANEL (hover) ===== */
   .controls {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.2rem;
-    padding: 0.9rem 1.4rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.2rem 0.8rem;
     background: linear-gradient(
       to top,
-      rgba(0,0,0,0.85) 0%,
-      rgba(0,0,0,0.5) 60%,
+      rgba(0,0,0,0.9) 0%,
+      rgba(0,0,0,0.55) 55%,
       rgba(0,0,0,0) 100%
     );
     opacity: 0;
@@ -201,7 +201,6 @@
       transform 0.35s ease,
       visibility 0.35s ease;
     z-index: 4;
-    flex-wrap: wrap;
   }
 
   .video-frame:hover .controls {
@@ -216,6 +215,71 @@
     transform: translateY(0);
   }
 
+  /* ===== PROGRESS BAR (YouTube style) ===== */
+  .progress {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: height 0.15s ease;
+  }
+
+  .progress:hover { height: 6px; }
+
+  .progress-buffer {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 2px;
+    transition: width 0.2s linear;
+  }
+
+  .progress-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%;
+    background: #ff0000;
+    border-radius: 2px;
+  }
+
+  .progress-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #ff0000;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.15s ease;
+    pointer-events: none;
+    box-shadow: 0 0 6px rgba(255,0,0,0.6);
+  }
+
+  .progress:hover .progress-thumb,
+  .progress.dragging .progress-thumb {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* ===== CONTROL ROW ===== */
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .left-group,
+  .right-group {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
   .ctrl-btn {
     background: none;
     border: none;
@@ -224,20 +288,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.85);
-    transition: all 0.25s ease;
+    color: rgba(255, 255, 255, 0.9);
+    transition: all 0.2s ease;
     border-radius: 50%;
   }
 
   .ctrl-btn:hover {
     color: #ffffff;
-    transform: scale(1.15);
-    text-shadow: 0 0 12px rgba(255,255,255,0.9);
+    transform: scale(1.12);
   }
 
   .ctrl-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     fill: currentColor;
   }
 
@@ -280,8 +343,8 @@
   .time-readout {
     font-family: 'Cormorant Garamond', serif;
     font-size: 0.82rem;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.85);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     text-shadow: 0 1px 4px rgba(0,0,0,0.8);
@@ -289,7 +352,7 @@
 
   .time-readout .sep {
     opacity: 0.4;
-    margin: 0 3px;
+    margin: 0 4px;
   }
 
   .volume-slider {
@@ -324,12 +387,6 @@
     cursor: pointer;
   }
 
-  .divider {
-    width: 1px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.2);
-  }
-
   .reciter {
     font-size: 0.75rem;
     letter-spacing: 0.3em;
@@ -345,8 +402,13 @@
     .overlay-btn .circle { width: 64px; height: 64px; }
     .overlay-btn svg { width: 24px; height: 24px; }
     .container { gap: 1rem; }
-    .controls { gap: 0.7rem; padding: 0.7rem 0.9rem; }
+    .controls { padding: 0.7rem 0.8rem 0.6rem; gap: 0.4rem; }
+    .control-row { gap: 0.5rem; }
+    .left-group, .right-group { gap: 0.6rem; }
+    .ctrl-btn svg { width: 18px; height: 18px; }
     .volume-slider { width: 50px; }
+    .time-readout { font-size: 0.7rem; }
+    .speed-pill { font-size: 0.65rem; padding: 2px 6px; }
     .duration-badge {
       font-size: 0.75rem;
       padding: 3px 9px;
@@ -401,54 +463,76 @@
 
       <div class="controls" id="controls">
 
-        <div class="speed-group" id="speedGroup">
-          <button class="speed-pill" data-speed="0.75">0.75×</button>
-          <button class="speed-pill active" data-speed="1">1×</button>
-          <button class="speed-pill" data-speed="1.25">1.25×</button>
-          <button class="speed-pill" data-speed="1.5">1.5×</button>
+        <div class="progress" id="progress">
+          <div class="progress-buffer" id="progressBuffer"></div>
+          <div class="progress-fill" id="progressFill"></div>
+          <div class="progress-thumb" id="progressThumb"></div>
         </div>
 
-        <div class="divider"></div>
+        <div class="control-row">
 
-        <div class="time-readout" id="timeReadout">
-          <span id="currentTime">0:00</span>
-          <span class="sep">/</span>
-          <span id="totalTime">--:--</span>
+          <div class="left-group">
+
+            <button class="ctrl-btn" id="playPauseBtn" title="Play / Pause (Space)">
+              <svg id="playPauseIcon" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn" id="replayBtn" title="Restart (R)">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn" id="muteBtn" title="Mute (M)">
+              <svg id="volIcon" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+              </svg>
+            </button>
+
+            <input
+              type="range"
+              class="volume-slider"
+              id="volumeSlider"
+              min="0"
+              max="1"
+              step="0.01"
+              value="1"
+            >
+
+            <div class="time-readout" id="timeReadout">
+              <span id="currentTime">0:00</span>
+              <span class="sep">/</span>
+              <span id="totalTime">--:--</span>
+            </div>
+
+          </div>
+
+          <div class="right-group">
+
+            <div class="speed-group" id="speedGroup">
+              <button class="speed-pill" data-speed="0.75">0.75×</button>
+              <button class="speed-pill active" data-speed="1">1×</button>
+              <button class="speed-pill" data-speed="1.25">1.25×</button>
+              <button class="speed-pill" data-speed="1.5">1.5×</button>
+            </div>
+
+            <button class="ctrl-btn" id="loopBtn" title="Loop (L)">
+              <svg viewBox="0 0 24 24">
+                <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+              </svg>
+            </button>
+
+            <button class="ctrl-btn" id="fsBtn" title="Fullscreen (F)">
+              <svg id="fsIcon" viewBox="0 0 24 24">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+              </svg>
+            </button>
+
+          </div>
+
         </div>
-
-        <div class="divider"></div>
-
-        <button class="ctrl-btn" id="muteBtn" title="Mute (M)">
-          <svg id="volIcon" viewBox="0 0 24 24">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
-        </button>
-
-        <input
-          type="range"
-          class="volume-slider"
-          id="volumeSlider"
-          min="0"
-          max="1"
-          step="0.01"
-          value="1"
-        >
-
-        <div class="divider"></div>
-
-        <button class="ctrl-btn" id="loopBtn" title="Loop (L)">
-          <svg viewBox="0 0 24 24">
-            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
-          </svg>
-        </button>
-
-        <div class="divider"></div>
-
-        <button class="ctrl-btn" id="fsBtn" title="Fullscreen (F)">
-          <svg id="fsIcon" viewBox="0 0 24 24">
-            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-          </svg>
-        </button>
 
       </div>
     </div>
@@ -471,6 +555,18 @@
   const loopBtn       = document.getElementById('loopBtn');
   const fsBtn         = document.getElementById('fsBtn');
 
+  const progress       = document.getElementById('progress');
+  const progressBuffer = document.getElementById('progressBuffer');
+  const progressFill   = document.getElementById('progressFill');
+  const progressThumb  = document.getElementById('progressThumb');
+
+  const playPauseBtn   = document.getElementById('playPauseBtn');
+  const playPauseIcon  = document.getElementById('playPauseIcon');
+  const replayBtn      = document.getElementById('replayBtn');
+
+  const PLAY_PATH  = "M8 5v14l11-7z";
+  const PAUSE_PATH = "M6 5h4v14H6zm8 0h4v14h-4z";
+
   const VOL_ON =
     "M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z";
 
@@ -478,20 +574,13 @@
     "M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z";
 
   function formatTime(seconds) {
-    if (!isFinite(seconds) || isNaN(seconds)) {
-      return '--:--';
-    }
-
+    if (!isFinite(seconds) || isNaN(seconds)) return '--:--';
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor(seconds % 60);
-
     if (h > 0) {
-      return h + ':' +
-        String(m).padStart(2, '0') + ':' +
-        String(s).padStart(2, '0');
+      return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
     }
-
     return m + ':' + String(s).padStart(2, '0');
   }
 
@@ -506,35 +595,99 @@
 
   video.addEventListener('loadedmetadata', updateDuration);
   video.addEventListener('durationchange', updateDuration);
-
-  if (video.readyState >= 1) {
-    updateDuration();
-  }
+  if (video.readyState >= 1) updateDuration();
 
   video.addEventListener('timeupdate', () => {
     currentTimeEl.textContent = formatTime(video.currentTime);
+    if (video.duration) {
+      const pct = (video.currentTime / video.duration) * 100;
+      progressFill.style.width = pct + '%';
+      progressThumb.style.left = pct + '%';
+    }
   });
+
+  video.addEventListener('progress', () => {
+    if (video.buffered.length > 0 && video.duration) {
+      const end = video.buffered.end(video.buffered.length - 1);
+      const pct = (end / video.duration) * 100;
+      progressBuffer.style.width = pct + '%';
+    }
+  });
+
+  let wasPlayingBeforeSeek = false;
+
+  progress.addEventListener('mousedown', (e) => {
+    progress.classList.add('dragging');
+    wasPlayingBeforeSeek = !video.paused;
+    video.pause();
+    seek(e);
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', onDragEnd);
+  });
+
+  progress.addEventListener('touchstart', (e) => {
+    progress.classList.add('dragging');
+    wasPlayingBeforeSeek = !video.paused;
+    video.pause();
+    seek(e.touches[0]);
+    document.addEventListener('touchmove', onTouchDrag);
+    document.addEventListener('touchend', onDragEnd);
+  });
+
+  function onDrag(e) { seek(e); }
+  function onTouchDrag(e) { seek(e.touches[0]); }
+
+  function onDragEnd() {
+    progress.classList.remove('dragging');
+    if (wasPlayingBeforeSeek) video.play();
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', onDragEnd);
+    document.removeEventListener('touchmove', onTouchDrag);
+    document.removeEventListener('touchend', onDragEnd);
+  }
+
+  function seek(e) {
+    const rect = progress.getBoundingClientRect();
+    let pct = (e.clientX - rect.left) / rect.width;
+    pct = Math.max(0, Math.min(1, pct));
+    video.currentTime = pct * video.duration;
+    progressFill.style.width = (pct * 100) + '%';
+    progressThumb.style.left = (pct * 100) + '%';
+    currentTimeEl.textContent = formatTime(video.currentTime);
+  }
 
   overlayBtn.addEventListener('click', async () => {
     overlayBtn.classList.add('hidden');
-    try {
-      await video.play();
-    } catch (err) {
+    try { await video.play(); }
+    catch (err) {
       console.warn('Play failed:', err);
       overlayBtn.classList.remove('hidden');
     }
   });
 
+  playPauseBtn.addEventListener('click', () => {
+    if (video.paused) video.play();
+    else video.pause();
+  });
+
+  replayBtn.addEventListener('click', () => {
+    video.currentTime = 0;
+    video.play();
+  });
+
   video.addEventListener('playing', () => {
     overlayBtn.classList.add('hidden');
+    playPauseIcon.querySelector('path').setAttribute('d', PAUSE_PATH);
   });
 
   video.addEventListener('pause', () => {
     overlayBtn.classList.remove('hidden');
+    playPauseIcon.querySelector('path').setAttribute('d', PLAY_PATH);
   });
 
   video.addEventListener('ended', () => {
     overlayBtn.classList.remove('hidden');
+    playPauseIcon.querySelector('path').setAttribute('d', PLAY_PATH);
   });
 
   video.addEventListener('error', () => {
@@ -542,16 +695,9 @@
     console.error('Video error:', video.error);
   });
 
-  video.addEventListener('click', async () => {
-    if (video.paused) {
-      try {
-        await video.play();
-      } catch (err) {
-        console.warn('Play failed:', err);
-      }
-    } else {
-      video.pause();
-    }
+  video.addEventListener('click', () => {
+    if (video.paused) video.play();
+    else video.pause();
   });
 
   speedPills.forEach(pill => {
@@ -593,11 +739,8 @@
   });
 
   fsBtn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      frame.requestFullscreen();
-    } else {
-      document.exitFullscreen();
-    }
+    if (!document.fullscreenElement) frame.requestFullscreen();
+    else document.exitFullscreen();
   });
 
   document.addEventListener('fullscreenchange', () => {
@@ -605,40 +748,22 @@
   });
 
   document.addEventListener('keydown', async (e) => {
-    if (
-      e.target === volumeSlider &&
-      (e.key === 'ArrowLeft' || e.key === 'ArrowRight')
-    ) {
-      return;
-    }
+    if (e.target === volumeSlider && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return;
 
     switch (e.code) {
       case 'Space':
         e.preventDefault();
-        if (video.paused) {
-          try {
-            await video.play();
-          } catch (err) {
-            console.warn('Play failed:', err);
-          }
-        } else {
-          video.pause();
-        }
+        if (video.paused) await video.play();
+        else video.pause();
         break;
-
       case 'ArrowRight':
         e.preventDefault();
-        video.currentTime = Math.min(
-          video.duration || 0,
-          video.currentTime + 5
-        );
+        video.currentTime = Math.min(video.duration || 0, video.currentTime + 5);
         break;
-
       case 'ArrowLeft':
         e.preventDefault();
         video.currentTime = Math.max(0, video.currentTime - 5);
         break;
-
       case 'ArrowUp':
         e.preventDefault();
         video.volume = Math.min(1, video.volume + 0.1);
@@ -646,7 +771,6 @@
         video.muted = false;
         updateVolIcon();
         break;
-
       case 'ArrowDown':
         e.preventDefault();
         video.volume = Math.max(0, video.volume - 0.1);
@@ -654,21 +778,10 @@
         video.muted = video.volume === 0;
         updateVolIcon();
         break;
-
-      case 'KeyF':
-        e.preventDefault();
-        fsBtn.click();
-        break;
-
-      case 'KeyM':
-        e.preventDefault();
-        muteBtn.click();
-        break;
-
-      case 'KeyL':
-        e.preventDefault();
-        loopBtn.click();
-        break;
+      case 'KeyF': e.preventDefault(); fsBtn.click(); break;
+      case 'KeyM': e.preventDefault(); muteBtn.click(); break;
+      case 'KeyL': e.preventDefault(); loopBtn.click(); break;
+      case 'KeyR': e.preventDefault(); replayBtn.click(); break;
     }
   });
 </script>
